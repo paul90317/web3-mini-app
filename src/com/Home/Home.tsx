@@ -38,12 +38,17 @@ function Home({ orgId, publicKey, privateKey, onLogout }: HomeProps) {
     }
   }
   async function addWallet() {
-    await apiClient.createWallet({
-      walletName: newWalletName,
-      accounts: DEFAULT_ETHEREUM_ACCOUNTS,
-    });
-    setNewWalletName('')
-    setWallets(undefined)
+    try {
+      await apiClient.createWallet({
+        walletName: newWalletName,
+        accounts: DEFAULT_ETHEREUM_ACCOUNTS,
+      });
+      setNewWalletName('')
+      setWallets(undefined)
+    } catch(e) {
+      console.log(e)
+      alert(e)
+    }
   }
 
   useEffect(() => {
