@@ -45,21 +45,28 @@ function Wallet({ apiClientArgs, id, name, reset }: WalletProps) {
   }
 
   async function sendTransaction() {
-    const turnkeySigner = new TurnkeySigner({
-      client: apiClient,
-      organizationId: apiClientArgs.orgId,
-      signWith: address
-    })
-
-    const connectedSigner = turnkeySigner.connect(provider);
-
-    const transactionRequest = {
-      to: addressTo,
-      value: ethers.parseEther(token),
-      type: 2
+    try {
+      const turnkeySigner = new TurnkeySigner({
+        client: apiClient,
+        organizationId: apiClientArgs.orgId,
+        signWith: address
+      })
+  
+      const connectedSigner = turnkeySigner.connect(provider);
+  
+      const transactionRequest = {
+        to: addressTo,
+        value: ethers.parseEther(token),
+        type: 2
+      }
+      const transactionResult = await connectedSigner.sendTransaction(transactionRequest);
+      console.log(transactionResult)
+      alert("The transaction is sent successfully!")
+    } catch(e) {
+      console.log(e)
+      alert(e)
+      return
     }
-    const transactionResult = await connectedSigner.sendTransaction(transactionRequest);
-    alert(transactionResult)
   }
 
   async function getBalance() {
@@ -79,7 +86,7 @@ function Wallet({ apiClientArgs, id, name, reset }: WalletProps) {
   if (addresses === undefined)
     return (
       <div className="home-container">
-        <h2>{name} (id)</h2>
+        <h2>{name} ({id})</h2>
         <p>Loading...</p>
       </div>
     )
@@ -108,7 +115,6 @@ function Wallet({ apiClientArgs, id, name, reset }: WalletProps) {
       <div className="balance-row">
         <span>{balance.substring(0, 8)}</span>
         <button onClick={() => {
-          console.log(address)
           getBalance()
         }}>Update</button>
       </div>
@@ -116,12 +122,14 @@ function Wallet({ apiClientArgs, id, name, reset }: WalletProps) {
       <input
         type="text"
         placeholder="To Address"
+        value={addressTo}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddressTo(e.target.value)}
       />
       <div className="token-row">
         <input
           type="text"
           placeholder="Token"
+          value={token}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setToken(e.target.value)}
         />
         <button onClick={() => { sendTransaction(); }}>Send</button>

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Turnkey } from "@turnkey/sdk-server"
+import { Turnkey, DEFAULT_ETHEREUM_ACCOUNTS } from "@turnkey/sdk-server"
 import Wallet from './Wallet'
 
 // Interface for Home component props
@@ -17,26 +17,33 @@ function Home({ orgId, publicKey, privateKey, onLogout }: HomeProps) {
     id: string;
     name: string;
   }[] | undefined>(undefined);
-
+  const [newWalletName, setNewWalletName] = useState('')
+  const turnkey = new Turnkey({
+    apiBaseUrl: "https://api.turnkey.com",
+    apiPrivateKey: privateKey,
+    apiPublicKey: publicKey,
+    defaultOrganizationId: orgId,
+  });
+  const apiClient = turnkey.apiClient();
   async function fetchWallets() {
-    const turnkey = new Turnkey({
-      apiBaseUrl: "https://api.turnkey.com",
-      apiPrivateKey: privateKey,
-      apiPublicKey: publicKey,
-      defaultOrganizationId: orgId,
-    });
     try {
-      const apiClient = turnkey.apiClient();
-      var { wallets } = await apiClient.getWallets();
+      const { wallets } = await apiClient.getWallets();
+      setWallets(wallets.map(wallet => ({
+        id: wallet.walletId,
+        name: wallet.walletName,
+      })));
     } catch {
       onLogout()
       return
     }
-
-    setWallets(wallets.map(wallet => ({
-      id: wallet.walletId,
-      name: wallet.walletName,
-    })));
+  }
+  async function addWallet() {
+    await apiClient.createWallet({
+      walletName: newWalletName,
+      accounts: DEFAULT_ETHEREUM_ACCOUNTS,
+    });
+    setNewWalletName('')
+    setWallets(undefined)
   }
 
   useEffect(() => {
@@ -61,17 +68,26 @@ function Home({ orgId, publicKey, privateKey, onLogout }: HomeProps) {
             {wallet.name} ({wallet.id})
           </button>
         ))}
+        <div className="token-row">
+          <input
+            type="text"
+            placeholder="New Wallet Name"
+            value={newWalletName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setNewWalletName(e.target.value)}}
+          />
+          <button onClick={() => { addWallet(); }}>Add</button>
+        </div>
         <button onClick={onLogout}>Logout</button>
       </div>
     );
 
-    return (
-      <Wallet apiClientArgs={{
-        orgId, publicKey, privateKey
-      }} id={wallets[walletIdx].id} name={wallets[walletIdx].name} reset={()=>{
-        setWalletIdx(-1)
-      }} />
-    );
+  return (
+    <Wallet apiClientArgs={{
+      orgId, publicKey, privateKey
+    }} id={wallets[walletIdx].id} name={wallets[walletIdx].name} reset={() => {
+      setWalletIdx(-1)
+    }} />
+  );
 }
 
 export default Home;
