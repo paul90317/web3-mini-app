@@ -1,0 +1,70 @@
+body {
+  font-family: Arial, sans-serif;
+  display: flex; /* Center content horizontally */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  height: 100vh;
+  margin: 0;
+  background-color: #f4f4f4;
+}
+
+.app {
+  width: 100%; /* Stretches to full width */
+  max-width: 400px; /* Sets a maximum width */
+  margin: 0 auto; /* Centers the app horizontally */
+}
+
+.login-container, .home-container {
+  text-align: center;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* 包含padding在內 */
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  margin: 3px 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.address-row,
+.balance-row
+.token-row {
+  display: flex; /* 將子元素排成一行 */
+  justify-content: center; /* 水平置中 */
+  align-items: center; /* 垂直置中 */
+  margin-bottom: 10px; /* 行與行之間的間距 */
+}
+
+.address-row select,
+.address-row button,
+.balance-row span,
+.balance-row button
+.token-row input {
+  margin: 0 10px; /* 元素之間的間距 */
+}
+
+.address-row select,
+.balance-row span,
+.token-row input {
+  margin: 0 10px; /* 元素之間的間距 */
+  width: 70%;
+}
