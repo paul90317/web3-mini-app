@@ -1,68 +1,56 @@
-import { useState, useEffect } from 'react';
-import { Turnkey } from "@turnkey/sdk-server"
-import { ethers } from "ethers";
-import { TurnkeySigner } from "@turnkey/ethers";
+import { useState } from 'react';
 import config from '../../config'
+import axios from 'axios';
+import {jwtDecode} from 'jwt-decode';
 
 // Interface for Home component props
 interface WalletProps {
-  apiClientArgs: {
-    orgId: string;
-    publicKey: string;
-    privateKey: string;
-  };
-  id: string;
-  name: string
   reset: () => void;
 }
 
-function Wallet({ apiClientArgs, id, name, reset }: WalletProps) {
-  const [addresses, setAddresses] = useState<string[] | undefined>(undefined);
+interface DecodedToken {
+  username: string;
+  walletId: string;
+  addresses: string[];  // Adjust the type depending on the structure of your token
+}
+
+function Wallet({ reset }: WalletProps) {
   const [address, setAddress] = useState('select address');
   const [addressTo, setAddressTo] = useState('');
   const [token, setToken] = useState('');
   const [balance, setBalance] = useState('');
-  const turnkey = new Turnkey({
-    apiBaseUrl: "https://api.turnkey.com",
-    apiPrivateKey: apiClientArgs.privateKey,
-    apiPublicKey: apiClientArgs.publicKey,
-    defaultOrganizationId: apiClientArgs.orgId,
-  });
-  const apiClient = turnkey.apiClient()
-  const provider = new ethers.JsonRpcProvider(config.RPC_PROVIDER_URL);
 
-  async function fetchAddresses() {
-    try {
-      var { accounts } = await apiClient.getWalletAccounts({
-        walletId: id,
-      })
-    } catch {
-      reset()
-      return
-    }
-
-    setAddresses(accounts.map(account => account.address))
+  const jwt = localStorage.getItem('jwt');
+  if (!jwt) {
+    reset()
+    return  (<div></div>)
   }
+    
+  const decodedJwt = jwtDecode<DecodedToken>(jwt);
+
+  const id = decodedJwt.walletId
+  const name = decodedJwt.username
+  const addresses = decodedJwt.addresses
 
   async function sendTransaction() {
     try {
-      const turnkeySigner = new TurnkeySigner({
-        client: apiClient,
-        organizationId: apiClientArgs.orgId,
-        signWith: address
-      })
-  
-      const connectedSigner = turnkeySigner.connect(provider);
-  
-      const transactionRequest = {
-        to: addressTo,
-        value: ethers.parseEther(token),
-        type: 2
+      const response = await axios.post(
+        `${config.WALLET_URL}/transaction`,
+        {address, addressTo, token},
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        }
+      );
+      if (response.status < 400) {
+        console.log(response)
+        alert("The transaction is sent successfully!")
+      } else {
+        console.log(response)
+        alert("The transaction fails!")
       }
-      const transactionResult = await connectedSigner.sendTransaction(transactionRequest);
-      console.log(transactionResult)
-      alert("The transaction is sent successfully!")
-    } catch(e) {
+    } catch (e) {
       console.log(e)
       alert(e)
       return
@@ -71,17 +59,19 @@ function Wallet({ apiClientArgs, id, name, reset }: WalletProps) {
 
   async function getBalance() {
     try {
-      const bl = await provider.getBalance(address)
-      setBalance(ethers.formatEther(bl))
+      const response = await axios.post(
+        `${config.WALLET_URL}/balance`,
+        {address,}
+      );
+      if(response.data.balance) {
+        setBalance(response.data.balance)
+      } else {
+        setBalance(response.data.error)
+      }
     } catch {
       setBalance('')
     }
   }
-
-  useEffect(() => {
-    if (addresses === undefined)
-      fetchAddresses()
-  })
 
   if (addresses === undefined)
     return (
@@ -138,7 +128,6 @@ function Wallet({ apiClientArgs, id, name, reset }: WalletProps) {
       <button onClick={reset}>select another wallet</button>
     </div>
   )
-
 }
 
 export default Wallet;
