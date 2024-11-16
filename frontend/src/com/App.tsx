@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import config from '../config'
-import Wallet from './Home/Wallet'
+import Wallet from './Wallet'
 import './App.css';
 import TelegramLoginButton from 'react-telegram-login';
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import config from '../../config'
+import config from '../config'
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
