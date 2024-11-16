@@ -5,28 +5,23 @@ import { jwtDecode } from 'jwt-decode';
 
 // Interface for Home component props
 interface WalletProps {
-  reset: () => void;
+  jwt: string;
 }
 
-interface DecodedToken {
+interface UserToken {
   username: string;
+  nickname: string;
   walletId: string;
   addresses: string[];  // Adjust the type depending on the structure of your token
 }
 
-function Wallet({ reset }: WalletProps) {
+function Wallet({ jwt }: WalletProps) {
   const [address, setAddress] = useState('select address');
   const [addressTo, setAddressTo] = useState('');
   const [token, setToken] = useState('');
   const [balance, setBalance] = useState('');
 
-  const jwt = localStorage.getItem('jwt');
-  if (!jwt) {
-    reset()
-    return (<div></div>)
-  }
-
-  const decodedJwt = jwtDecode<DecodedToken>(jwt);
+  const decodedJwt = jwtDecode<UserToken>(jwt);
   const addresses = decodedJwt.addresses
 
   async function sendTransaction() {
@@ -112,8 +107,6 @@ function Wallet({ reset }: WalletProps) {
         />
         <button onClick={() => { sendTransaction(); }}>Send</button>
       </div>
-
-      <button onClick={reset}>select another wallet</button>
     </div>
   )
 }

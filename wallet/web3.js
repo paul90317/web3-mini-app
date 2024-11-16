@@ -16,10 +16,10 @@ const provider = new ethers.JsonRpcProvider(process.env.RPC_PROVIDER_URL);
 
 export async function fetchWallet(walletName) {
     const { wallets } = await apiClient.getWallets();
-    const wallet = wallets.find(wallet => wallet.walletName === `${walletName}`);
+    const wallet = wallets.find(wallet => wallet.walletName === walletName);
     if (!wallet) {
         const walletResponse = await apiClient.createWallet({
-            walletName: `${walletName}`,
+            walletName: walletName,
             accounts: DEFAULT_ETHEREUM_ACCOUNTS,
         });
 

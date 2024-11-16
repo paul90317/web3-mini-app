@@ -6,44 +6,49 @@ import config from '../config'
 import Wallet from './Wallet'
 import './App.css';
 import TelegramLoginButton from 'react-telegram-login';
+import { jwtDecode } from 'jwt-decode';
+
+interface UserToken {
+  username: string;
+  nickname: string;
+  walletId: string;
+  addresses: string[];  // Adjust the type depending on the structure of your token
+}
 
 const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [jwt, setJWT] = useState('');
 
   // 檢查是否已經登入
+  async function fetchJWT(data) {
+    if (data) {
+      let res = await axios.post(`${config.WALLET_URL}/login`, data)
+      if (res.status >= 400)
+        return
+      setJWT(res.data.token)
+    }
+  }
   React.useEffect(() => {
-    const token = localStorage.getItem('jwt');
-    if (token) {
-      setIsLoggedIn(true);
+    if (!jwt && window.Telegram && window.Telegram.WebApp) {
+      const userData = window.Telegram.WebApp.initData;
+      fetchJWT({ initData: userData })
     }
   }, []);
-
-  // 登出處理函數
-  const handleLogout = () => {
-    localStorage.removeItem('jwt');
-    localStorage.removeItem('telegramUser');
-    setIsLoggedIn(false);
-  };
 
   return (
     <div className="App">
       <h1>Web3 Mini App</h1>
       <div className="home-container">
-        <TelegramLoginButton
-          botName={config.BOT_NAME}
-          dataOnauth={async data => {
-            let res = await axios.post(`${config.WALLET_URL}/login`, data)
-            if (res.status >= 400)
-              return alert('Login fail!')
-            localStorage.setItem('jwt', res.data.token)
-            setIsLoggedIn(true)
-          }}
-          buttonSize="large"
-        />
-        {isLoggedIn ? (
-          <Wallet reset={handleLogout} />
+        {jwt ? (
+          <div>
+            <p>Hello, {jwtDecode<UserToken>(jwt).nickname}</p>
+            <Wallet jwt={jwt} />
+          </div>
         ) : (
-          <div></div>
+          <TelegramLoginButton
+            botName={config.BOT_NAME}
+            dataOnauth={fetchJWT}
+            buttonSize="large"
+          />
         )}
       </div>
 

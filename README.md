@@ -48,3 +48,9 @@
 	The service listens on port 3000
 ### Set Telegram OAuth domain
 Follow [Telegram Login Widget](https://core.telegram.org/widgets/login) to set domain with [Telegram BotFather](https://t.me/BotFather)
+
+## Reference
+* [Telegram Mini Apps](https://core.telegram.org/bots/webapps)
+* [Telegram Login Widget](https://core.telegram.org/widgets/login)
+* [Turnkey documentation](https://docs.turnkey.com/getting-started/quickstart)
+* [How to Build a Onchain Telegram Mini App](https://youtu.be/ojUSPOwbpWo?si=U4mriokMMMQVD-2_)
