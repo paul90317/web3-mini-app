@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import config from '../../config'
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 // Interface for Home component props
 interface WalletProps {
@@ -23,20 +23,17 @@ function Wallet({ reset }: WalletProps) {
   const jwt = localStorage.getItem('jwt');
   if (!jwt) {
     reset()
-    return  (<div></div>)
+    return (<div></div>)
   }
-    
-  const decodedJwt = jwtDecode<DecodedToken>(jwt);
 
-  const id = decodedJwt.walletId
-  const name = decodedJwt.username
+  const decodedJwt = jwtDecode<DecodedToken>(jwt);
   const addresses = decodedJwt.addresses
 
   async function sendTransaction() {
     try {
       const response = await axios.post(
         `${config.WALLET_URL}/transaction`,
-        {address, addressTo, token},
+        { address, addressTo, token },
         {
           headers: {
             Authorization: `Bearer ${jwt}`,
@@ -61,9 +58,9 @@ function Wallet({ reset }: WalletProps) {
     try {
       const response = await axios.post(
         `${config.WALLET_URL}/balance`,
-        {address,}
+        { address, }
       );
-      if(response.data.balance) {
+      if (response.data.balance) {
         setBalance(response.data.balance)
       } else {
         setBalance(response.data.error)
@@ -73,17 +70,8 @@ function Wallet({ reset }: WalletProps) {
     }
   }
 
-  if (addresses === undefined)
-    return (
-      <div className="home-container">
-        <h2>{name} ({id})</h2>
-        <p>Loading...</p>
-      </div>
-    )
-
   return (
-    <div className="home-container">
-      <h2>{name} ({id})</h2>
+    <div>
       <div className="address-row">
         <select value={address} onChange={event => {
           setAddress(event.target.value)

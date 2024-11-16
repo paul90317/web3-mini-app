@@ -5,9 +5,9 @@ import axios from 'axios';
 import config from '../config'
 import Wallet from './Home/Wallet'
 import './App.css';
+import TelegramLoginButton from 'react-telegram-login';
 
 const App: React.FC = () => {
-  const [username, setUsername] = useState<string>('');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   // 檢查是否已經登入
@@ -18,50 +18,35 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // 處理用戶名輸入變更
-  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(event.target.value);
-  };
-
-  // 登入處理函數
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post(`${config.WALLET_URL}/login`, { username });
-      const { token } = response.data;
-
-      if (token) {
-        localStorage.setItem('jwt', token);
-        setIsLoggedIn(true);
-      }
-    } catch (error) {
-      console.error('Login failed:', error);
-      alert('Login failed. Please try again.');
-    }
-  };
-
   // 登出處理函數
   const handleLogout = () => {
     localStorage.removeItem('jwt');
+    localStorage.removeItem('telegramUser');
     setIsLoggedIn(false);
   };
 
   return (
     <div className="App">
-      <h1>Login Page</h1>
+      <h1>Web3 Mini App</h1>
+      <div className="home-container">
+        <TelegramLoginButton
+          botName={config.BOT_NAME}
+          dataOnauth={async data => {
+            let res = await axios.post(`${config.WALLET_URL}/login`, data)
+            if (res.status >= 400)
+              return alert('Login fail!')
+            localStorage.setItem('jwt', res.data.token)
+            setIsLoggedIn(true)
+          }}
+          buttonSize="large"
+        />
+        {isLoggedIn ? (
+          <Wallet reset={handleLogout} />
+        ) : (
+          <div></div>
+        )}
+      </div>
 
-      {isLoggedIn ? (
-        <Wallet reset={handleLogout}/>
-      ) : (
-        <div>
-          <input
-            type="text"
-            placeholder="Enter your username"
-            value={username}
-            onChange={handleUsernameChange}
-          />
-          <button onClick={handleLogin}>Login</button>
-        </div>
-      )}
     </div>
   );
 };

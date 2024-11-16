@@ -1,22 +1,53 @@
 import { config } from 'dotenv'
-config()
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import authenticateToken from './auth.js';
 import cors from 'cors'
+import crypto from 'crypto'
 import { fetchWallet, sendTransaction, getBalance } from './web3.js'
 
-const app = express();
+config()
 
+const app = express();
 app.use(express.json());
 app.use(cors())
-const SECRET_KEY = process.env.SECRET_KEY;
+
+const SECRET_KEY = process.env.SECRET_KEY
+
+function verifyTelegramData(data) {
+    const secretKey = crypto.createHash('sha256').update(process.env.BOT_TOKEN).digest();
+    const checkString = Object.keys(data)
+        .filter((key) => key !== 'hash')
+        .sort()
+        .map((key) => `${key}=${data[key]}`)
+        .join('\n');
+    const hash = crypto.createHmac('sha256', secretKey).update(checkString).digest('hex');
+
+    // Verify the hash matches
+    if (hash !== data.hash) {
+        return false;
+    }
+
+    // Verify the authentication date
+    const currentTime = Math.floor(Date.now() / 1000); // Current time in Unix seconds
+    const maxAllowedTimeDifference = 86400; // 24 hours (adjust as needed)
+
+    if (currentTime - data.auth_date > maxAllowedTimeDifference) {
+        return false;
+    }
+
+    return true;
+}
 
 // login, auto register
 app.post('/login', async (req, res) => {
-    const { username } = req.body;
+    const telegramData = req.body;
+    if (!verifyTelegramData(telegramData)) {
+        res.status(401).json({ message: 'Invalid username or password' });
+    }
     try {
-        let { walletId, addresses } = await fetchWallet(username)
+        let { walletId, addresses } = await fetchWallet(telegramData.id)
+        const username = `${telegramData.id}`
         const payload = { username, walletId, addresses };
         const token = jwt.sign(payload, SECRET_KEY);
         res.json({ token });
@@ -53,6 +84,6 @@ app.post('/transaction', authenticateToken, async (req, res) => {
 
 // 啟動伺服器
 const port = 3000
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`Server running at http://localhost:${port}`);
 });
