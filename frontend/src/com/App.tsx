@@ -21,7 +21,7 @@ const App: React.FC = () => {
   // 檢查是否已經登入
   async function fetchJWT(data) {
     if (data) {
-      let res = await axios.post(`${config.WALLET_URL}/login`, data)
+      let res = await axios.post('/api/login', data)
       if (res.status >= 400)
         return
       setJWT(res.data.token)

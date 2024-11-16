@@ -27,7 +27,7 @@ function Wallet({ jwt }: WalletProps) {
   async function sendTransaction() {
     try {
       const response = await axios.post(
-        `${config.WALLET_URL}/transaction`,
+        '/api/transaction',
         { address, addressTo, token },
         {
           headers: {
@@ -52,7 +52,7 @@ function Wallet({ jwt }: WalletProps) {
   async function getBalance() {
     try {
       const response = await axios.post(
-        `${config.WALLET_URL}/balance`,
+        '/api/balance',
         { address, }
       );
       if (response.data.balance) {
