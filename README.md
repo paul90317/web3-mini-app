@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Web3 Mini App with Turnkey
+## Execution
 
-## Getting Started
+1. Set the configuration file `.env`:
+	```env
+	# Turnkey Organization
+	PRIVATE_KEY=
+	PUBLIC_KEY=
+	ORG_ID=
 
-First, run the development server:
+	# RPC provider URL for Sepolia network
+	RPC_PROVIDER_URL=https://sepolia.infura.io/v3/<your token>
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+	# Telegram Bot Token for authentication
+	BOT_TOKEN=
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+    # Telegram Bot Name
+    NEXT_PUBLIC_BOT_NAME=
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+	# Secret key for JWT
+	SECRET_KEY=<Any password that is secure enough>
+	```
+	Follow [the Turnkey documentation](https://docs.turnkey.com/getting-started/quickstart) to obtain your organization ID and API key pair.  
+2. Build and run the frontend:
+	```bash
+	npm install .
+	npm run dev
+	```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Set Telegram OAuth domain
+Follow [Telegram Login Widget](https://core.telegram.org/widgets/login) to set domain with [Telegram BotFather](https://t.me/BotFather)
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Reference
+* [Telegram Mini Apps](https://core.telegram.org/bots/webapps)
+* [Telegram Login Widget](https://core.telegram.org/widgets/login)
+* [Turnkey documentation](https://docs.turnkey.com/getting-started/quickstart)
+* [How to Build a Onchain Telegram Mini App](https://youtu.be/ojUSPOwbpWo?si=U4mriokMMMQVD-2_)
+* [Next.js Document](https://nextjs.org/)
+* Turnkey Demo Telegram Mini App: [github.com](https://github.com/tkhq/demo-telegram-mini-app), [t.me](https://t.me/TurnkeyDemoAppBot)

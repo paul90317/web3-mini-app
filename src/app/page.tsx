@@ -37,7 +37,7 @@ export default function App() {
       <h1>Web3 Mini App</h1>
       <div className="home-container">
         <TelegramLoginButton
-          botName='web3mini9bot'
+          botName={process.env.NEXT_PUBLIC_BOT_NAME}
           dataOnauth={fetchJWT}
           buttonSize="large"
         />
